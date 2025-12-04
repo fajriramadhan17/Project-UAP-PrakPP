@@ -24,6 +24,31 @@ int main() {
         init_pair(4, COLOR_GREEN, COLOR_BLACK);
         init_pair(5, COLOR_CYAN, COLOR_BLACK); // Untuk input nama
     }
+       // Data menu
+    const char* menuItems[] = {
+        "Play Game",
+        "High Score", 
+        "Quit Game"
+    };
+    const int menuCount = 3;
+    
+    int selected = 0;
+    bool quit = false;
+    
+    while (!quit) {
+        clear();
+        
+        int maxY, maxX;
+        getmaxyx(stdscr, maxY, maxX);
+        
+        // Tampilkan ASCII Art
+        string asciiArt = tampilanMenu();
+        
+        // Hitung jumlah baris dalam ASCII Art
+        int lineCount = 0;
+        int maxLineWidth = 0;
+        size_t pos = 0;
+        string tempArt = asciiArt;
     
     
     // Cleanup ncurses
