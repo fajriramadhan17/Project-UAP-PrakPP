@@ -102,7 +102,52 @@ int main() {
                 }
             }
         }
-    
+
+        // Input handling
+        int ch = getch();
+        
+        // Tombol panah atas
+        if (ch == KEY_UP) {
+            selected--;
+            if (selected < 0) selected = menuCount - 1;
+        }
+        // Tombol panah bawah
+        else if (ch == KEY_DOWN) {
+            selected++;
+            if (selected >= menuCount) selected = 0;
+        }
+        // Tombol enter atau newline
+        else if (ch == '\n' || ch == KEY_ENTER) {
+            // Play Game
+            if (selected == 0) {
+                playGame();
+            }
+            // High Score
+            else if (selected == 1) {
+                showHighScores();
+            }
+            // Quit Game
+            else if (selected == 2) {
+                quit = true;
+            }
+        }
+        // Tombol 'q' atau 'Q'
+        else if (ch == 'q' || ch == 'Q') {
+            quit = true;
+        }
+        // Tombol '1' langsung ke Play Game
+        else if (ch == '1') {
+            playGame();
+        }
+        // Tombol '2' langsung ke High Score
+        else if (ch == '2') {
+            showHighScores();
+        }
+        // Tombol '3' langsung ke Quit Game
+        else if (ch == '3') {
+            quit = true;
+        }
+    }
     
     // Cleanup ncurses
     endwin();
