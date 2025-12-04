@@ -120,11 +120,11 @@ int main() {
         else if (ch == '\n' || ch == KEY_ENTER) {
             // Play Game
             if (selected == 0) {
-                playGame();
+              
             }
             // High Score
             else if (selected == 1) {
-                showHighScores();
+                
             }
             // Quit Game
             else if (selected == 2) {
@@ -137,11 +137,11 @@ int main() {
         }
         // Tombol '1' langsung ke Play Game
         else if (ch == '1') {
-            playGame();
+           
         }
         // Tombol '2' langsung ke High Score
         else if (ch == '2') {
-            showHighScores();
+            
         }
         // Tombol '3' langsung ke Quit Game
         else if (ch == '3') {
