@@ -49,6 +49,59 @@ int main() {
         int maxLineWidth = 0;
         size_t pos = 0;
         string tempArt = asciiArt;
+
+        while ((pos = tempArt.find('\n')) != string::npos) {
+            string line = tempArt.substr(0, pos);
+            int lineWidth = line.length();
+            if (lineWidth > maxLineWidth) maxLineWidth = lineWidth;
+            lineCount++;
+            tempArt = tempArt.substr(pos + 1);
+        }
+        
+        // Tampilkan ASCII Art di tengah
+        int startY = (maxY - lineCount) / 3;
+        int startX = (maxX - maxLineWidth) / 2;
+        
+        tempArt = asciiArt;
+        pos = 0;
+        int currentLine = 0;
+        while ((pos = tempArt.find('\n')) != string::npos) {
+            string line = tempArt.substr(0, pos);
+            mvprintw(startY + currentLine, startX, "%s", line.c_str());
+            currentLine++;
+            tempArt = tempArt.substr(pos + 1);
+        }
+        
+        // Tampilkan menu items
+        int menuStartY = startY + lineCount + 2;
+        int menuStartX = startX + 12;
+        
+        for (int i = 0; i < menuCount; i++) {
+            int y = menuStartY + i;
+            int x = menuStartX;
+            
+            if (i == selected) {
+                if (has_colors()) {
+                    attron(COLOR_PAIR(2));
+                } else {
+                    attron(A_REVERSE);
+                }
+                mvprintw(y, x - 2, "> %s", menuItems[i]);
+                if (has_colors()) {
+                    attroff(COLOR_PAIR(2));
+                } else {
+                    attroff(A_REVERSE);
+                }
+            } else {
+                if (has_colors()) {
+                    attron(COLOR_PAIR(1));
+                }
+                mvprintw(y, x, "  %s", menuItems[i]);
+                if (has_colors()) {
+                    attroff(COLOR_PAIR(1));
+                }
+            }
+        }
     
     
     // Cleanup ncurses
