@@ -1,4 +1,3 @@
-#include <ncurses/ncurses.h>
 #include <string>
 using namespace std;
 
