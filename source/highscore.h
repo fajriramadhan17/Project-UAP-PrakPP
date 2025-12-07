@@ -34,3 +34,17 @@ HighScoreEntry entry;
             highScores[scoreCount] = entry;
             scoreCount++;
         }
+
+file.close();
+        
+        // Sort scores menggunakan bubble sort
+        for (int i = 0; i < scoreCount - 1; i++) {
+            for (int j = 0; j < scoreCount - i - 1; j++) {
+                if (highScores[j].score < highScores[j + 1].score) {
+                    HighScoreEntry temp = highScores[j];
+                    highScores[j] = highScores[j + 1];
+                    highScores[j + 1] = temp;
+                }
+            }
+        }
+    }
