@@ -97,3 +97,53 @@ void saveScores() {
         
         saveScores();
 }
+
+    void displayScores() {
+        clear();
+        
+        int maxY, maxX;
+        getmaxyx(stdscr, maxY, maxX);
+        
+        mvprintw(2, maxX / 2 - 6, "HIGH SCORES");
+        mvprintw(3, maxX / 2 - 10, "====================");
+        
+        int startY = maxY / 2 - 5;
+        
+        if (scoreCount == 0) {
+            mvprintw(startY, maxX / 2 - 10, "No high scores yet!");
+        } else {
+            mvprintw(startY - 2, maxX / 2 - 15, "RANK  NAME               SCORE");
+            mvprintw(startY - 1, maxX / 2 - 15, "--------------------------------");
+            
+            for (int i = 0; i < scoreCount && i < MAX_SCORES; i++) {
+                mvprintw(startY + i, maxX / 2 - 15, 
+                        "%2d.   %-15s   %5d", 
+                        i + 1, 
+                        highScores[i].name, 
+                        highScores[i].score);
+            }
+        }
+        
+        mvprintw(startY + 12, maxX / 2 - 10, "Press any key to continue...");
+        
+        refresh();
+        getch();
+    }
+    
+    int getScoreCount() const { return scoreCount; }
+    
+    HighScoreEntry getScoreAt(int index) const {
+        if (index >= 0 && index < scoreCount) {
+            return highScores[index];
+        }
+        HighScoreEntry empty;
+        strcpy(empty.name, "");
+        empty.score = 0;
+        return empty;
+    }
+    
+    void clearScores() {
+        scoreCount = 0;
+        saveScores();
+    }
+};
