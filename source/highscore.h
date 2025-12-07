@@ -23,3 +23,8 @@ public:
     
     void loadScores() {
         scoreCount = 0;
+
+std::ifstream file(filename);
+        if (!file.is_open()) {
+            return;
+        }
