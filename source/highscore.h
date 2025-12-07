@@ -28,3 +28,9 @@ std::ifstream file(filename);
         if (!file.is_open()) {
             return;
         }
+
+HighScoreEntry entry;
+        while (scoreCount < MAX_SCORES && file >> entry.name >> entry.score) {
+            highScores[scoreCount] = entry;
+            scoreCount++;
+        }
