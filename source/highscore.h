@@ -15,3 +15,11 @@ private:
     int scoreCount;
     std::string filename;
     const int MAX_SCORES = 10;
+
+public:
+    HighScoreManager(const std::string& file = "highscores.txt") : filename(file), scoreCount(0) {
+        loadScores();
+    }
+    
+    void loadScores() {
+        scoreCount = 0;
