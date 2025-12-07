@@ -48,3 +48,52 @@ file.close();
             }
         }
     }
+
+void saveScores() {
+        std::ofstream file(filename);
+        if (!file.is_open()) {
+            return;
+        }
+        
+        for (int i = 0; i < scoreCount; i++) {
+            file << highScores[i].name << " " << highScores[i].score << "\n";
+        }
+        
+        file.close();
+    }
+    
+    void addScore(const std::string& name, int score) {
+        // Jika array penuh dan skor lebih rendah dari yang terendah, tidak tambahkan
+        if (scoreCount == MAX_SCORES && score <= highScores[MAX_SCORES - 1].score) {
+            return;
+        }
+        
+        // Buat entry baru
+        HighScoreEntry newEntry;
+        strncpy(newEntry.name, name.c_str(), 19);
+        newEntry.name[19] = '\0';
+        newEntry.score = score;
+        
+        // Jika array belum penuh, tambahkan di akhir
+        if (scoreCount < MAX_SCORES) {
+            highScores[scoreCount] = newEntry;
+            scoreCount++;
+        } 
+        // Jika array penuh, ganti yang terendah
+        else {
+            highScores[MAX_SCORES - 1] = newEntry;
+        }
+        
+        // Sort scores menggunakan bubble sort
+        for (int i = 0; i < scoreCount - 1; i++) {
+            for (int j = 0; j < scoreCount - i - 1; j++) {
+                if (highScores[j].score < highScores[j + 1].score) {
+                    HighScoreEntry temp = highScores[j];
+                    highScores[j] = highScores[j + 1];
+                    highScores[j + 1] = temp;
+                }
+            }
+        }
+        
+        saveScores();
+}
