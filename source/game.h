@@ -245,3 +245,201 @@ void drawPlayer() {
                 spawnObstacle();
             }
         }
+
+    updateScore();
+        
+        // Update kamera (scrolling)
+        if (player.x - cameraX > gameAreaStartX + gameAreaWidth * 2 / 3) {
+            cameraX = player.x - (gameAreaStartX + gameAreaWidth * 2 / 3);
+        }
+    }
+    
+    void checkAndIncreaseSpeed() {
+        // Cek apakah skor mencapai kelipatan 100 dan belum ditingkatkan
+        if (score >= lastSpeedIncreaseScore + 100) {
+            // Hitung level peningkatan berdasarkan berapa kali sudah ditingkatkan
+            int level = speedIncreaseCounter + 1;
+            
+            // 1. Tingkatkan kecepatan obstacle (bergerak lebih cepat ke kiri)
+            speed -= 2; // Kurangi delay frame (semakin kecil = semakin cepat)
+            if (speed < 3) speed = 3; // Minimum speed
+            
+            // 2. Tingkatkan kecepatan player (bergerak maju lebih cepat)
+            playerSpeed += 1; // Tambah kecepatan player
+            
+            // 3. Kurangi spawn rate (obstacle muncul lebih sering)
+            obstacleSpawnRate -= 2;
+            if (obstacleSpawnRate < 3) obstacleSpawnRate = 3;
+            
+            // 4. Tingkatkan density (lebih banyak obstacle yang muncul)
+            obstacleDensity += 1;
+            if (obstacleDensity > 3) obstacleDensity = 3; // Maksimal 3 obstacle sekaligus
+            
+            speedIncreaseCounter++;
+            lastSpeedIncreaseScore = (score / 100) * 100; // Bulatkan ke kelipatan 100 terdekat
+            
+            // Tampilkan pesan kecepatan meningkat di atas area game
+            if (has_colors()) {
+                attron(COLOR_PAIR(4) | A_BOLD); // Warna hijau tebal
+            }
+            
+            // Simpan posisi skor untuk nanti dikembalikan
+            int savedY = gameAreaStartY - 2;
+            int savedX = gameAreaStartX;
+            
+            // Tampilkan pesan speed boost di atas border area game
+            mvprintw(gameAreaStartY - 3, gameAreaStartX, 
+                    "SPEED BOOST! Level: %d | Player Speed: %d | Spawn Rate: %d", 
+                    speedIncreaseCounter, playerSpeed, obstacleSpawnRate);
+            
+            if (has_colors()) {
+                attroff(COLOR_PAIR(4) | A_BOLD);
+            }
+            
+            refresh();
+            
+            // Tunggu sebentar agar pesan terlihat
+            napms(800); // 0.8 detik
+            
+            // Hapus pesan speed boost dengan menimpa dengan spasi
+            mvprintw(gameAreaStartY - 3, gameAreaStartX, 
+                    "                                                                   ");
+            
+            // Refresh lagi untuk memperbarui layar
+            refresh();
+        }
+    }
+    
+    void spawnObstacle() {
+        if (obstacleCount < maxObstacles) {
+            obstacles[obstacleCount].x = cameraX + gameAreaStartX + gameAreaWidth + rand() % 20;
+            
+            // Sesuaikan distribusi obstacle berdasarkan level kecepatan
+            int minY = gameAreaStartY + 1;
+            int maxY = gameAreaStartY + gameAreaHeight - 2;
+            int range = maxY - minY;
+            
+            // Pada level tinggi, obstacle bisa muncul di mana saja
+            if (speedIncreaseCounter > 0) {
+                obstacles[obstacleCount].y = minY + rand() % range;
+            } else {
+                // Awal game, obstacle hanya di tengah
+                obstacles[obstacleCount].y = minY + (range / 3) + rand() % (range / 3);
+            }
+            
+            // Pilih simbol obstacle berdasarkan level
+            char symbols[] = {'#', '@', '*', '%', '&', '+', 'X', 'O'};
+            char chosenSymbol = symbols[rand() % (4 + speedIncreaseCounter)];
+            if (chosenSymbol > 'O') chosenSymbol = 'O';
+            obstacles[obstacleCount].symbol = chosenSymbol;
+            
+            // Buat obstacle berdasarkan level kecepatan
+            for (int dy = 0; dy < 3; dy++) {
+                for (int dx = 0; dx < 3; dx++) {
+                    if (dx == 1 && dy == 1) {
+                        // Tengah: simbol utama
+                        obstacles[obstacleCount].shape[dy][dx] = chosenSymbol;
+                    } else {
+                        // Pada level tinggi, buat obstacle lebih padat
+                        if (speedIncreaseCounter > 0 && rand() % (4 - speedIncreaseCounter) == 0) {
+                            obstacles[obstacleCount].shape[dy][dx] = chosenSymbol;
+                        } else {
+                            char borderChars[] = {chosenSymbol, '.', '+', 'o', '~', '-'};
+                            obstacles[obstacleCount].shape[dy][dx] = borderChars[rand() % 6];
+                        }
+                    }
+                }
+            }
+            
+            // Pada level tinggi, kadang buat obstacle lebih besar
+            if (speedIncreaseCounter > 2 && rand() % 5 == 0) {
+                for (int dy = 0; dy < 3; dy++) {
+                    for (int dx = 0; dx < 3; dx++) {
+                        obstacles[obstacleCount].shape[dy][dx] = chosenSymbol;
+                    }
+                }
+            }
+            
+            obstacleCount++;
+        }
+    }
+    
+    void movePlayer(int dy) {  // Sekarang dy untuk naik/turun
+        if (isPaused || isGameOver) return;
+        
+        int newY = player.y + dy;
+        
+        // Batasi pergerakan dalam area game
+        if (newY > gameAreaStartY + 1 && newY < gameAreaStartY + gameAreaHeight - 2) {
+            player.y = newY;
+        }
+        
+        // Gerakkan player maju dengan kecepatan yang disesuaikan
+        if (!isPaused && !isGameOver) {
+            player.x += playerSpeed; // Gunakan playerSpeed
+            
+            // Tambah skor berdasarkan kecepatan player
+            if (frameCount % 5 == 0) {
+                score += playerSpeed; // Skor lebih tinggi jika playerSpeed lebih besar
+            }
+        }
+    }
+    
+    bool checkCollision() {
+        if (isGameOver) return false;
+        
+        for (int i = 0; i < obstacleCount; i++) {
+            // Cek tabrakan dengan seluruh area obstacle 3x3
+            for (int dy = -1; dy <= 1; dy++) {
+                for (int dx = -1; dx <= 1; dx++) {
+                    int obsX = obstacles[i].x + dx;
+                    int obsY = obstacles[i].y + dy;
+                    
+                    // Tabrakan di posisi player
+                    if (obsX == player.x && obsY == player.y) {
+                        return true;
+                    }
+                    
+                    // Tabrakan jika obstacle tepat di depan player
+                    if (obsX == player.x + 1 && obsY == player.y) {
+                        return true;
+                    }
+                    
+                    // Tabrakan jika obstacle menyentuh ekor player
+                    if (obsX == player.x - 1 && obsY == player.y) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    
+    void updateScore() {
+        // Skor sudah ditambah di movePlayer() dan updateObstacles()
+        // Tambahkan bonus untuk bertahan hidup
+        if (frameCount % 100 == 0 && !isPaused && !isGameOver) {
+            score += 5 * playerSpeed; // Bonus berdasarkan kecepatan player
+        }
+    }
+    
+    void pauseGame() {
+        isPaused = !isPaused;
+    }
+    
+    void resumeGame() {
+        isPaused = false;
+    }
+    
+    void gameOver() {
+        isGameOver = true;
+    }
+    
+    bool getIsPaused() const { return isPaused; }
+    bool getIsGameOver() const { return isGameOver; }
+    int getScore() const { return score; }
+    GameObject getPlayer() const { return player; }
+    int getSpeedLevel() const { return speedIncreaseCounter; }
+    
+    std::string playerName;
+};
