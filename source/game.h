@@ -64,3 +64,99 @@ public:
         cameraX = 0;
         lastSpeedIncreaseScore = 0;
         speedIncreaseCounter = 0;
+
+ // Inisialisasi variabel kecepatan baru
+        playerSpeed = 1;  // Kecepatan awal player
+        obstacleSpawnRate = 15;  // Frekuensi spawn awal
+        obstacleDensity = 1;  // Kepadatan obstacle awal
+        
+        initGame();
+    }
+    
+    ~Game() {
+        delete[] obstacles;
+    }
+    
+    void initGame() {
+        // Posisi player di tengah kiri area game
+        player.x = gameAreaStartX + 2;
+        player.y = gameAreaStartY + gameAreaHeight / 2; // Tengah vertikal
+        player.symbol = '>';
+        
+        playerBaseX = player.x;
+        
+        score = 0;
+        isPaused = false;
+        isGameOver = false;
+        speed = 15; // Kecepatan obstacle bergerak
+        frameCount = 0;
+        obstacleCount = 0;
+        cameraX = 0;
+        lastSpeedIncreaseScore = 0;
+        speedIncreaseCounter = 0;
+        
+        // Reset variabel kecepatan
+        playerSpeed = 1;
+        obstacleSpawnRate = 15;
+        obstacleDensity = 1;
+        
+        // Spawn beberapa obstacle awal
+        for (int i = 0; i < 5; i++) {
+            spawnObstacle();
+        }
+    }
+    
+    void drawBorder() {
+        if (has_colors()) {
+            attron(COLOR_PAIR(3));
+        }
+        
+        // Border atas
+        for (int x = gameAreaStartX; x < gameAreaStartX + gameAreaWidth; x++) {
+            mvaddch(gameAreaStartY, x, '-');
+        }
+        
+        // Border bawah
+        for (int x = gameAreaStartX; x < gameAreaStartX + gameAreaWidth; x++) {
+            mvaddch(gameAreaStartY + gameAreaHeight - 1, x, '-');
+        }
+        
+        // Border kiri dan kanan
+        for (int y = gameAreaStartY; y < gameAreaStartY + gameAreaHeight; y++) {
+            mvaddch(y, gameAreaStartX, '|');
+            mvaddch(y, gameAreaStartX + gameAreaWidth - 1, '|');
+        }
+        
+        // Sudut border
+        mvaddch(gameAreaStartY, gameAreaStartX, '+');
+        mvaddch(gameAreaStartY, gameAreaStartX + gameAreaWidth - 1, '+');
+        mvaddch(gameAreaStartY + gameAreaHeight - 1, gameAreaStartX, '+');
+        mvaddch(gameAreaStartY + gameAreaHeight - 1, gameAreaStartX + gameAreaWidth - 1, '+');
+        
+        if (has_colors()) {
+            attroff(COLOR_PAIR(3));
+        }
+        
+        // Info game dengan informasi kecepatan baru
+        mvprintw(gameAreaStartY - 2, gameAreaStartX, "SCORE: %d", score);
+        mvprintw(gameAreaStartY - 2, gameAreaStartX + 20, "SPEED LEVEL: %d", speedIncreaseCounter);
+        mvprintw(gameAreaStartY - 2, gameAreaStartX + 40, "PLAYER SPEED: %d", playerSpeed);
+        
+        if (isPaused) {
+            mvprintw(gameAreaStartY + gameAreaHeight / 2, 
+                     gameAreaStartX + gameAreaWidth / 2 - 5, 
+                     "[PAUSED]");
+        }
+        
+        if (isGameOver) {
+            mvprintw(gameAreaStartY + gameAreaHeight / 2 - 1, 
+                     gameAreaStartX + gameAreaWidth / 2 - 10, 
+                     "GAME OVER!");
+            mvprintw(gameAreaStartY + gameAreaHeight / 2, 
+                     gameAreaStartX + gameAreaWidth / 2 - 10, 
+                     "Final Score: %d", score);
+            mvprintw(gameAreaStartY + gameAreaHeight / 2 + 1, 
+                     gameAreaStartX  + gameAreaWidth / 2 - 10, 
+                     "Speed Level Reached: %d", speedIncreaseCounter);
+        }
+    }
