@@ -160,3 +160,88 @@ public:
                      "Speed Level Reached: %d", speedIncreaseCounter);
         }
     }
+void drawPlayer() {
+        if (has_colors()) {
+            attron(COLOR_PAIR(2));
+        }
+        
+        // Gambar player sebagai ">"
+        mvaddch(player.y, player.x - cameraX, '>');
+        
+        // Tambahkan efek visual untuk player
+        if (!isGameOver) {
+            mvaddch(player.y, player.x - cameraX - 1, '-'); // Ekor
+            // Tambahkan efek kecepatan
+            if (playerSpeed > 1) {
+                mvaddch(player.y, player.x - cameraX - 2, '-');
+            }
+            if (playerSpeed > 2) {
+                mvaddch(player.y, player.x - cameraX - 3, '-');
+            }
+        }
+        
+        if (has_colors()) {
+            attroff(COLOR_PAIR(2));
+        }
+    }
+    
+    void drawObstacles() {
+        if (has_colors()) {
+            attron(COLOR_PAIR(1));
+        }
+        
+        for (int i = 0; i < obstacleCount; i++) {
+            // Gambar obstacle 3x3
+            for (int dy = -1; dy <= 1; dy++) {
+                for (int dx = -1; dx <= 1; dx++) {
+                    int screenX = (obstacles[i].x + dx) - cameraX;
+                    int screenY = obstacles[i].y + dy;
+                    
+                    // Hanya gambar bagian yang terlihat di layar
+                    if (screenX >= gameAreaStartX && 
+                        screenX < gameAreaStartX + gameAreaWidth &&
+                        screenY >= gameAreaStartY && 
+                        screenY < gameAreaStartY + gameAreaHeight) {
+                        
+                        mvaddch(screenY, screenX, obstacles[i].shape[dy + 1][dx + 1]);
+                    }
+                }
+            }
+        }
+        
+        if (has_colors()) {
+            attroff(COLOR_PAIR(1));
+        }
+    }
+    
+    void updateObstacles() {
+        if (isPaused || isGameOver) return;
+        
+        frameCount++;
+        
+        // Cek apakah skor mencapai kelipatan 100 untuk meningkatkan kecepatan
+        checkAndIncreaseSpeed();
+        
+        // Gerakkan obstacle ke kiri (mendekati player) dengan kecepatan yang disesuaikan
+        for (int i = 0; i < obstacleCount; i++) {
+            obstacles[i].x -= 2 + (speedIncreaseCounter / 2); // Semakin cepat saat level naik
+            
+            // Jika obstacle keluar dari layar di sisi kiri (periksa bagian kanan obstacle)
+            if ((obstacles[i].x + 1) < cameraX) {
+                score += 10 + (speedIncreaseCounter * 2); // Bonus skor lebih tinggi saat level naik
+                // Hapus obstacle yang sudah lewat
+                for (int j = i; j < obstacleCount - 1; j++) {
+                    obstacles[j] = obstacles[j + 1];
+                }
+                obstacleCount--;
+                i--; // Periksa ulang index ini
+            }
+        }
+        
+        // Spawn obstacle baru dengan rate dan density yang disesuaikan
+        if (frameCount % obstacleSpawnRate == 0) {
+            // Spawn multiple obstacles berdasarkan density
+            for (int i = 0; i < obstacleDensity; i++) {
+                spawnObstacle();
+            }
+        }
