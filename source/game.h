@@ -45,3 +45,22 @@ private:
     int playerSpeed;  // Kecepatan pergerakan player (otomatis maju)
     int obstacleSpawnRate;  // Frekuensi spawn obstacle
     int obstacleDensity;  // Kepadatan obstacle (berapa banyak yang muncul)
+
+public:
+    Game(int w = 80, int h = 24) {
+        srand(time(0));
+        
+        width = w;
+        height = h;
+        gameAreaWidth = 60;  // Lebar lebih besar untuk horizontal scrolling
+        gameAreaHeight = 18; // Tinggi lebih kecil
+        gameAreaStartX = 10; // Area game dimulai dari kiri
+        gameAreaStartY = (h - gameAreaHeight) / 2;
+        
+        maxObstacles = 20;   // Lebih banyak obstacle untuk level tinggi
+        obstacles = new Obstacle3x3[maxObstacles];
+        obstacleCount = 0;
+        
+        cameraX = 0;
+        lastSpeedIncreaseScore = 0;
+        speedIncreaseCounter = 0;
