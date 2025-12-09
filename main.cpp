@@ -2,10 +2,14 @@
 #include <cstring>
 #include <string>
 #include "asciiArt.h"
-#include "highscore.h"
 #include "game.h"
+#include "highscore.h"
 
 using namespace std;
+
+void playGame();
+void showHighScores();
+string getPlayerName();
 
 int main() {
     // Inisialisasi ncurses
@@ -14,8 +18,8 @@ int main() {
     noecho();
     curs_set(0);
     keypad(stdscr, TRUE);
-
-     // Inisialisasi warna
+    
+    // Inisialisasi warna
     if (has_colors()) {
         start_color();
         init_pair(1, COLOR_WHITE, COLOR_BLACK);
@@ -24,7 +28,8 @@ int main() {
         init_pair(4, COLOR_GREEN, COLOR_BLACK);
         init_pair(5, COLOR_CYAN, COLOR_BLACK); // Untuk input nama
     }
-       // Data menu
+    
+    // Data menu
     const char* menuItems[] = {
         "Play Game",
         "High Score", 
@@ -49,7 +54,7 @@ int main() {
         int maxLineWidth = 0;
         size_t pos = 0;
         string tempArt = asciiArt;
-
+        
         while ((pos = tempArt.find('\n')) != string::npos) {
             string line = tempArt.substr(0, pos);
             int lineWidth = line.length();
@@ -120,11 +125,11 @@ int main() {
         else if (ch == '\n' || ch == KEY_ENTER) {
             // Play Game
             if (selected == 0) {
-              
+                playGame();
             }
             // High Score
             else if (selected == 1) {
-                
+                showHighScores();
             }
             // Quit Game
             else if (selected == 2) {
@@ -137,11 +142,11 @@ int main() {
         }
         // Tombol '1' langsung ke Play Game
         else if (ch == '1') {
-           
+            playGame();
         }
         // Tombol '2' langsung ke High Score
         else if (ch == '2') {
-            
+            showHighScores();
         }
         // Tombol '3' langsung ke Quit Game
         else if (ch == '3') {
@@ -149,7 +154,6 @@ int main() {
         }
     }
     
-    // Cleanup ncurses
     endwin();
     return 0;
 }
@@ -272,4 +276,3 @@ void playGame() {
         }
     }
 }
-
