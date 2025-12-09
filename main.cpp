@@ -153,3 +153,123 @@ int main() {
     endwin();
     return 0;
 }
+
+void playGame() {
+    bool playAgain = true;
+    
+    while (playAgain) {
+        // Inisialisasi game baru setiap kali memulai
+        Game game;
+        HighScoreManager hsManager;
+        
+        bool inGame = true;
+        bool gameRunning = true;
+        
+        // Setup game
+        timeout(50);
+        
+        while (inGame && gameRunning) {
+            clear();
+            
+            // Update dan gambar game
+            game.updateObstacles();
+            game.drawBorder();
+            game.drawPlayer();
+            game.drawObstacles();
+            
+            // Cek tabrakan
+            if (game.checkCollision()) {
+                game.gameOver();
+            }
+            
+            // Refresh layar
+            refresh();
+            
+            // Input handling dalam game
+            int ch = getch();
+            
+            // Tombol untuk bergerak ke atas
+            if (ch == 'w' || ch == 'W' || ch == KEY_UP) {
+                game.movePlayer(-1); // Naik
+            }
+            // Tombol untuk bergerak ke bawah
+            else if (ch == 's' || ch == 'S' || ch == KEY_DOWN) {
+                game.movePlayer(1);  // Turun
+            }
+            // Tombol untuk pause game
+            else if (ch == 'p' || ch == 'P') {
+                game.pauseGame();
+                // Tampilkan layar pause
+                clear();
+                game.drawBorder();
+                refresh();
+                // Tunggu sampai 'p' ditekan lagi
+                while (game.getIsPaused()) {
+                    int pauseCh = getch();
+                    if (pauseCh == 'p' || pauseCh == 'P') {
+                        game.pauseGame();
+                    } else if (pauseCh == 'q' || pauseCh == 'Q') {
+                        inGame = false;
+                        gameRunning = false;
+                        break;
+                    }
+                }
+            }
+            // Tombol untuk quit game
+            else if (ch == 'q' || ch == 'Q') {
+                inGame = false;
+                gameRunning = false;
+            }
+            
+            // Jika game over
+            if (game.getIsGameOver()) {
+                clear();
+                game.drawBorder();
+                refresh();
+                
+                // Tampilkan skor akhir
+                int maxY, maxX;
+                getmaxyx(stdscr, maxY, maxX);
+                mvprintw(maxY / 2 - 2, maxX / 2 - 10, 
+                        "Your Score: %d", game.getScore());
+                mvprintw(maxY / 2 - 1, maxX / 2 - 10, 
+                        "Speed Level: %d", game.getSpeedLevel());
+                mvprintw(maxY / 2, maxX / 2 - 15, 
+                        "Enter your name for high score:");
+                
+                // Dapatkan nama pemain (di tengah layar)
+                string playerName = getPlayerName();
+                
+                // Simpan high score
+                if (!playerName.empty()) {
+                    hsManager.addScore(playerName, game.getScore());
+                }
+                
+                gameRunning = false;
+                inGame = false;
+            }
+        }
+        
+        // Tanya apakah ingin main lagi
+        timeout(-1);
+        clear();
+        
+        int maxY, maxX;
+        getmaxyx(stdscr, maxY, maxX);
+        
+        mvprintw(maxY / 2 - 2, maxX / 2 - 15, "Game Over!");
+        mvprintw(maxY / 2, maxX / 2 - 15, "1. Play Again");
+        mvprintw(maxY / 2 + 1, maxX / 2 - 15, "2. Return to Menu");
+        mvprintw(maxY / 2 + 2, maxX / 2 - 15, "Choose option (1-2): ");
+        
+        refresh();
+        
+        int choice = getch();
+        if (choice == '1') {
+            playAgain = true;
+        } else {
+            playAgain = false;
+        }
+    }
+}
+
