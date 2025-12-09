@@ -317,3 +317,105 @@ string getPlayerName() {
     
     // Tampilkan window
     wrefresh(inputWin);
+// Variabel untuk input nama
+    char name[20] = "";
+    int nameLength = 0;
+    int cursorPos = 8; // Posisi awal cursor (setelah "Name: ")
+    
+    // Loop input
+    bool done = false;
+    while (!done) {
+        // Tampilkan nama saat ini
+        mvwprintw(inputWin, 4, 8, "%-19s", name); // Clear dan tampilkan
+        wmove(inputWin, 4, cursorPos);
+        wrefresh(inputWin);
+        
+        // Dapatkan input
+        int ch = wgetch(inputWin);
+        
+        if (ch == '\n' || ch == KEY_ENTER) {
+            // Tekan Enter untuk selesai
+            done = true;
+        } else if (ch == KEY_BACKSPACE || ch == 127 || ch == 8 || ch == KEY_DC) {
+            // Backspace atau Delete untuk menghapus karakter
+            if (nameLength > 0) {
+                nameLength--;
+                name[nameLength] = '\0';
+                cursorPos--;
+                
+                // Hapus karakter terakhir dari layar
+                mvwaddch(inputWin, 4, cursorPos, ' ');
+                wmove(inputWin, 4, cursorPos);
+                wrefresh(inputWin);
+            }
+        } else if (ch == 27) { // ESC key
+            // Batal input
+            name[0] = '\0';
+            nameLength = 0;
+            done = true;
+        } else if (nameLength < 19 && ch >= 32 && ch <= 126) {
+            // Karakter printable dan masih ada ruang
+            name[nameLength] = ch;
+            nameLength++;
+            name[nameLength] = '\0';
+            cursorPos++;
+            
+            // Tampilkan karakter yang baru ditambahkan
+            mvwaddch(inputWin, 4, cursorPos - 1, ch);
+            wrefresh(inputWin);
+        } else if (ch == KEY_LEFT) {
+            // Panah kiri untuk pindah kursor
+            if (cursorPos > 8) {
+                cursorPos--;
+                wmove(inputWin, 4, cursorPos);
+                wrefresh(inputWin);
+            }
+        } else if (ch == KEY_RIGHT) {
+            // Panah kanan untuk pindah kursor
+            if (cursorPos < 8 + nameLength) {
+                cursorPos++;
+                wmove(inputWin, 4, cursorPos);
+                wrefresh(inputWin);
+            }
+        } else if (ch == KEY_HOME) {
+            // Home untuk ke awal
+            cursorPos = 8;
+            wmove(inputWin, 4, cursorPos);
+            wrefresh(inputWin);
+        } else if (ch == KEY_END) {
+            // End untuk ke akhir
+            cursorPos = 8 + nameLength;
+            wmove(inputWin, 4, cursorPos);
+            wrefresh(inputWin);
+        }
+    }
+    
+    // Bersihkan window
+    werase(inputWin);
+    wrefresh(inputWin);
+    delwin(inputWin);
+    
+    // Tampilkan pesan konfirmasi (hanya jika nama tidak kosong)
+    if (strlen(name) > 0) {
+        // Bersihkan layar dan tampilkan pesan konfirmasi di tengah
+        clear();
+        mvprintw(maxY / 2 - 1, maxX / 2 - 15, "High score saved successfully!");
+        mvprintw(maxY / 2, maxX / 2 - 10, "Name: %s", name);
+        mvprintw(maxY / 2 + 1, maxX / 2 - 10, "Score saved!");
+        mvprintw(maxY / 2 + 3, maxX / 2 - 15, "Press any key to continue...");
+        refresh();
+        getch();
+    } else {
+        // Jika nama kosong (ESC ditekan), tampilkan pesan
+        clear();
+        mvprintw(maxY / 2, maxX / 2 - 15, "High score not saved (cancelled)");
+        mvprintw(maxY / 2 + 2, maxX / 2 - 15, "Press any key to continue...");
+        refresh();
+        getch();
+    }
+    
+    noecho();
+    curs_set(0);
+    
+    return string(name);
+}
