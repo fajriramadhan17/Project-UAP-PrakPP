@@ -276,3 +276,44 @@ void playGame() {
         }
     }
 }
+
+void showHighScores() {
+    HighScoreManager hsManager;
+    hsManager.displayScores();
+}
+
+string getPlayerName() {
+    echo();
+    curs_set(1);
+    
+    int maxY, maxX;
+    getmaxyx(stdscr, maxY, maxX);
+    
+    // Buat window untuk input di tengah layar
+    int winHeight = 7;  // Sedikit lebih tinggi untuk tampilan yang lebih baik
+    int winWidth = 50;  // Lebih lebar untuk instruksi
+    int winY = maxY / 2 - winHeight / 2;  // Tengah vertikal
+    int winX = maxX / 2 - winWidth / 2;   // Tengah horizontal
+    
+    WINDOW* inputWin = newwin(winHeight, winWidth, winY, winX);
+    box(inputWin, 0, 0);
+    
+    // Judul window
+    wattron(inputWin, COLOR_PAIR(5) | A_BOLD);
+    mvwprintw(inputWin, 0, winWidth/2 - 8, " ENTER YOUR NAME ");
+    wattroff(inputWin, COLOR_PAIR(5) | A_BOLD);
+    
+    // Instruksi
+    mvwprintw(inputWin, 1, 2, "Press ENTER to confirm, BACKSPACE to delete");
+    mvwprintw(inputWin, 2, 2, "Press ESC to cancel");
+    
+    // Garis pemisah
+    for (int i = 2; i < winWidth - 2; i++) {
+        mvwaddch(inputWin, 3, i, '-');
+    }
+    
+    // Label input
+    mvwprintw(inputWin, 4, 2, "Name: ");
+    
+    // Tampilkan window
+    wrefresh(inputWin);
