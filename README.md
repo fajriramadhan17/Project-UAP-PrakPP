@@ -1,4 +1,4 @@
-# Project UAP PrakPP
+# RICKO RACING MANDALIKA
 
 Sebuah game terminal berbasis ncurses yang dibuat dalam bahasa C++. Game ini menyajikan permainan sederhana dengan kontrol keyboard, papan skor (highscore), dan tampilan ASCII art pada menu.
 
